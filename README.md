@@ -49,3 +49,40 @@ GitHub 任務：
 實作一個「多執行緒網頁爬蟲」。
 
 Antigravity 應用： 讓 Agent 幫你檢查 Race Condition（競態競爭）。
+
+---
+
+## 🛠️ 如何執行 Go 程式
+
+在終端機 (Terminal) 中，你可以使用以下指令來執行、編譯或管理你的 Go 專案：
+
+### 1. 直接執行 (開發常用)
+如果你只想快速看到結果，不需要產生執行檔：
+```bash
+go run main.go
+# 或者執行專案中的其他檔案
+go run variables.go
+go run fizzbuzz.go
+```
+
+### 2. 編譯成執行檔 (部署常用)
+將程式碼編譯成二進位執行檔：
+```bash
+go build main.go
+# 在 Windows 會產生 main.exe，在 macOS/Linux 會產生 main
+# 執行編譯後的程式：
+./main
+```
+
+### 3. 模組管理
+如果你有引用外部套件或是需要整理 `go.mod`：
+```bash
+# 自動下載缺少的套件並移除不使用的套件
+go mod tidy
+```
+
+### 4. 格式化代碼
+讓你的程式碼符合 Go 官方規範：
+```bash
+go fmt ./...
+```
