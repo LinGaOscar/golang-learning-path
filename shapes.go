@@ -34,7 +34,8 @@ func (c Circle) Area() float64 {
 }
 
 // Scale 方法 (Pointer Receiver)
-// 使用 *Circle 直接操作記憶體位址，會修改原物件的值
+// * 代表指標 (Pointer)。在 Java 中物件預設都是傳址 (Pass by reference)，
+// 但在 Go 中必須明確加上 * 才能修改原物件，否則會傳入一個副本 (Pass by value)。
 func (c *Circle) Scale(factor float64) {
 	c.Radius = c.Radius * factor
 }
@@ -52,6 +53,8 @@ func printArea(s Shape) {
 }
 
 func main() {
+	// := 是短變數宣告，相當於 Java 的 var (例如: var rect = new Rectangle(10, 5))
+	// 它會自動推斷型別，且不需要寫 var 關鍵字。
 	rect := Rectangle{Width: 10, Height: 5}
 	circ := Circle{Radius: 7}
 
