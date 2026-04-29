@@ -40,7 +40,19 @@ func (e *DatabaseError) Unwrap() error {
 // ==========================================
 // 2. 定義哨兵錯誤 (Sentinel Errors)
 // ==========================================
-// 這些通常用於 errors.Is 的比對，代表錯誤的「種類」。
+// 💡 【概念補充】errors.New() 與 Error() 的差別：
+//
+// 1. Error() 是一種「規定」(介面) 與「方法」：
+//    在 Go 中，只要任何型別實作了 `Error() string` 方法 (如上方的 DatabaseError)，
+//    Go 就會承認它是一個合法的 error。它像是「員工守則」，規定你必須具備報出錯誤訊息的能力。
+//
+// 2. errors.New() 是一個「快速製造錯誤的工具」(函式)：
+//    當我們只需要一個最簡單、只有一句話的錯誤時，不需要大費周章去寫 struct 和 Error() 方法。
+//    呼叫 errors.New("...") 時，Go 底層會自動建立一個隱藏的 struct，並幫它實作好 Error() 方法。
+//    這就像是跟派遣公司叫一個只會講一句話的臨時工一樣方便。
+//
+// 這裡的 ErrTimeout 和 ErrPermission 就是用 errors.New() 快速產生出來的「哨兵錯誤」，
+// 它們通常用於 errors.Is 的比對，代表錯誤的「種類」。
 
 var (
 	ErrTimeout    = errors.New("連線超時 (Connection Timeout)")
@@ -53,6 +65,12 @@ var (
 
 func ConnectDB(user string, scenario string) error {
 	// 基礎的包裝結構
+	// 語法解析: dbErr := &DatabaseError{...}
+	// 1. :=     代表短宣告與賦值
+	// 2. {...}  建立一個 DatabaseError 結構體的實例
+	// 3. &      取得該實例的「記憶體位址」(將其變成指標 *DatabaseError)
+	// 注意：這裡必須使用 & 變成指標，因為在上方的程式碼中，Error() 方法是綁定在指標 (*DatabaseError) 上的。
+	// 只有指標型別才算是有實作 error 介面，才能作為 error 回傳。
 	dbErr := &DatabaseError{
 		Op:   "Connect",
 		User: user,
@@ -63,10 +81,14 @@ func ConnectDB(user string, scenario string) error {
 	case "timeout":
 		dbErr.Message = "伺服器無回應，已達到最大等待時間"
 		dbErr.Err = ErrTimeout // 將哨兵錯誤包裝進去
+		// 解答：「哪邊把 DatabaseError 當作 error 回傳？」 -> 就是這裡！
+		// 因為 ConnectDB 的宣告回傳型別是 error，而 dbErr (*DatabaseError) 已經實作了 Error() 方法，
+		// 所以 Go 會自動將這個指標當作 error 介面回傳出去。
 		return dbErr
 	case "permission":
 		dbErr.Message = "無效的存取權限，請確認 API Key"
 		dbErr.Err = ErrPermission // 將哨兵錯誤包裝進去
+		// 同上，將 *DatabaseError 當作 error 介面回傳
 		return dbErr
 	default:
 		// 模擬成功連線
